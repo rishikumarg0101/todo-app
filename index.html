@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Todo App</title>
+  </head>
+  <body>
+    <div id="app">
+      <h1>My Todos</h1>
+      <input id="input" placeholder="Add a new todo..." />
+      <button onclick="addTodo()">Add</button>
+      <ul id="list"></ul>
+    </div>
+
+    <script>
+      const SERVER = '';
+
+      async function loadTodos() {
+        const res = await fetch(`${SERVER}/todos`);
+        const todos = await res.json();
+        const list = document.getElementById('list');
+        list.innerHTML = '';
+        todos.forEach((todo) => {
+          list.innerHTML += `
+            <li>
+              ${todo.text}
+              <button onclick="deleteTodo(${todo.id})">❌</button>
+            </li>`;
+        });
+      }
+
+      async function addTodo() {
+        const input = document.getElementById('input');
+        await fetch(`${SERVER}/todos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ todo: input.value }),
+        });
+        input.value = '';
+        loadTodos();
+      }
+
+      async function deleteTodo(id) {
+        await fetch(`${SERVER}/todos/${id}`, { method: 'DELETE' });
+        loadTodos();
+      }
+
+      loadTodos();
+    </script>
+  </body>
+</html>
